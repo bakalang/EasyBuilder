@@ -26,25 +26,15 @@ public class SimpleService extends Application<SampleConf> {
                         bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)
                 )
         );
-
+        // schedulers
         bootstrap.addBundle(new JobsBundle("net.skyee.schedulers"));
-
     }
 
     @Override
     public void run(SampleConf sampleConf, Environment environment) throws Exception {
         final DBIFactory factory = new DBIFactory();
         final DBI jdbi = factory.build(environment, sampleConf.getDataSourceFactory(), "mariadb");
-//        final StocksDAO dao = jdbi.onDemand(StocksDAO.class);
-
-//        final Template template = sampleConf.buildTemplate();
-//        environment.jersey().register(new TemplateResource(template, dao));
-
         context = Context.getInstance().updateDBInterface(jdbi).setConfigration(sampleConf);
-
-
-//                .updateDBInterface(jdbi).setConfigration(sampleConf);
-//        BuildResource buildResource = new BuildResource(template, context.templateDAO());
         environment.jersey().register(new BuildResource(context));
     }
 }

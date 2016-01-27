@@ -3,13 +3,13 @@ package net.skyee.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Optional;
 import net.skyee.Context;
-import net.skyee.bean.Login;
 import net.skyee.svn.SvnRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-@Path("/hello")
+
+@Path("/build")
 @Produces(MediaType.APPLICATION_JSON)
 public class BuildResource {
 
@@ -23,7 +23,7 @@ public class BuildResource {
     @GET
     @Timed(name = "get-requests")
     public String sayHello(@QueryParam("name") Optional<String> name) {
-        System.out.println("requests name:"+name);
+        log.info("build requests name: "+name.orNull());
         SvnRepository d = new SvnRepository(context);
 
         try {

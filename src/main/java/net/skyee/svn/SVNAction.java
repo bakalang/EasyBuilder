@@ -55,21 +55,21 @@ public class SVNAction extends SVNBase
 			// do checkout
 			uc.doCheckout(repository.getLocation(), destDir, SVNRevision.create(lastVersion), SVNRevision.create(lastVersion), SVNDepth.INFINITY, true);
 
+			// modified configuration
+			Map<String, String> configChangedPathMap = getModifiedConfiguration(repository.log(new String[]{""}, null, dbVersion, lastVersion, true, true));
+			log.info("currentVersionWithModifiedConfiguration size=" + configChangedPathMap.size());
+			if ( null != remark && configChangedPathMap.size() > 0 )
+			{
+				for ( String mapKey : configChangedPathMap.keySet() )
+				{
+					context.getProjectConfigurationHstoryDAO().insert(projectNo, remark, mapKey, configChangedPathMap.get(mapKey));
+				}
+			}
+
 			// do check config changed
 			if ( mainProject )
 			{
 				context.getProjectCheckoutDAO().insert(DATETIME.format(c.getTime()), projectNo, lastVersion, remark);
-
-				Map<String, String> configChangedPathMap = getModifiedConfiguration(repository.log(new String[]{""}, null, dbVersion, lastVersion, true, true));
-                log.info("currentVersionWithModifiedConfiguration size=" + configChangedPathMap.size());
-
-				if ( null != remark && configChangedPathMap.size() > 0 )
-				{
-					for ( String mapKey : configChangedPathMap.keySet() )
-					{
-						context.getProjectConfigurationHstoryDAO().insert(projectNo, remark, mapKey, configChangedPathMap.get(mapKey));
-					}
-				}
 			}
 
 			// do update version
