@@ -8,9 +8,9 @@ import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLoc
 @UseStringTemplate3StatementLocator
 public interface ProjectCheckoutDAO
 {
-	@SqlUpdate("insert into project_checkout values (:checkout_time, :project_no, :version, :remark)")
-	void insert(@Bind("checkout_time") String checkoutTime,
-				@Bind("project_no") int projectNo,
+	@SqlUpdate("insert into project_checkout values (:project_no, :uuid, :version, :remark)")
+	void insert(@Bind("project_no") int projectNo,
+				@Bind("uuid") String uuid,
 				@Bind("version") long version,
 				@Bind("remark") String remark);
 

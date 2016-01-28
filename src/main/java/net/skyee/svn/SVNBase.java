@@ -16,6 +16,7 @@ public class SVNBase
 	public SVNRepository repository;
 	public BasicAuthenticationManager authManager;
 	public SVNClientManager cm;
+	public boolean antBuild;
 
 	public void setup(String url, Login lo) throws SVNException
 	{
@@ -35,5 +36,13 @@ public class SVNBase
 	public BasicAuthenticationManager getAuthManager()
 	{
 		return authManager;
+	}
+
+	public boolean isAntBuild() {
+		return antBuild;
+	}
+
+	public void setAntBuild(boolean antBuild) {
+		this.antBuild = antBuild;
 	}
 }

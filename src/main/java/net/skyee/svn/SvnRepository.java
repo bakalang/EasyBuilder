@@ -1,18 +1,22 @@
 package net.skyee.svn;
 
 import net.skyee.Context;
+import net.skyee.bean.BuildJob;
+import net.skyee.bean.Component;
 import net.skyee.bean.Login;
 import net.skyee.bean.Project;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class SvnRepository {
-    Logger log = LoggerFactory.getLogger(SvnRepository.class);
-
+    private Logger log = LoggerFactory.getLogger(SvnRepository.class);
+    private final SimpleDateFormat DATETIME_REMARK = new SimpleDateFormat("yyyyMMddhhmmss");
     private Context context;
 
     public SvnRepository(Context context) {
@@ -20,7 +24,7 @@ public class SvnRepository {
     }
 
 
-    public void test(String moduleName) throws Exception {
+    public BuildJob test(String moduleName) throws Exception {
 
         // declare
         Login login = new Login(context.getConfigration().getSvnUser(), context.getConfigration().getSvnPwd());
@@ -29,18 +33,22 @@ public class SvnRepository {
         getDependenceLoop(p.getProjectNo(), dc);
         dc.put(p.getProjectNo(), p.getRepository() + "/" + p.getModule());
 
+        // remark
+        Calendar c = Calendar.getInstance();
+        String remark = DATETIME_REMARK.format(c.getTime());
+
         SVNAction svnaction = new SVNAction();
+        svnaction.setAntBuild(true);
+        BuildJob bj = new BuildJob(remark);
         for ( int projectNo : dc.keySet() )
         {
             String path = dc.get(projectNo);
             svnaction.setup(context.getConfigration().getSvnURL()+ "/" +path, login);
 
             // chechout
-            log.info("start  " + path + " checkout!");
-            svnaction.checkout(projectNo, path, projectNo==p.getProjectNo() );
-            log.info("----------------------------------------------");
+            bj.addComponents(svnaction.checkout(projectNo, path, projectNo==p.getProjectNo(), remark));
         }
-        System.out.println(p);
+        return bj;
     }
 
     private void getDependenceLoop(Integer projectNo, Map<Integer, String> dc) throws ClassNotFoundException

@@ -8,6 +8,7 @@ import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import net.skyee.resources.BuildResource;
+import net.skyee.resources.ResultResource;
 import org.skife.jdbi.v2.DBI;
 
 
@@ -36,5 +37,6 @@ public class SimpleService extends Application<SampleConf> {
         final DBI jdbi = factory.build(environment, sampleConf.getDataSourceFactory(), "mariadb");
         context = Context.getInstance().updateDBInterface(jdbi).setConfigration(sampleConf);
         environment.jersey().register(new BuildResource(context));
+        environment.jersey().register(new ResultResource(context));
     }
 }

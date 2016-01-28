@@ -22,6 +22,9 @@ public class SampleConf extends Configuration {
     private String svnPwd;
 
     @NotEmpty
+    private String zipPath;
+
+    @NotEmpty
     private String sourcePath;
 
     @NotEmpty
@@ -35,6 +38,9 @@ public class SampleConf extends Configuration {
 
     @JsonProperty
     public String getSvnPwd() { return svnPwd; }
+
+    @JsonProperty
+    public String getZipPath() { return zipPath; }
 
     @JsonProperty
     public String getConfigPath() { return configPath; }

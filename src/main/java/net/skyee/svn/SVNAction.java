@@ -5,14 +5,13 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import net.skyee.Context;
+import net.skyee.bean.Component;
+import net.skyee.bean.Config;
+import net.skyee.build.RunExecutor;
+import net.skyee.util.UUIDUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tmatesoft.svn.core.SVNDepth;
@@ -27,61 +26,67 @@ import org.tmatesoft.svn.core.wc.SVNUpdateClient;
 
 public class SVNAction extends SVNBase
 {
-    Logger log = LoggerFactory.getLogger(SVNAction.class);
+	private Logger log = LoggerFactory.getLogger(SVNAction.class);
 	private Context context;
-	private final SimpleDateFormat DATETIME_REMARK = new SimpleDateFormat("yyyyMMddhhmmss");
-	private final SimpleDateFormat DATETIME = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 	public SVNAction() {
 		this.context = Context.getInstance();
 	}
 
-	public void checkout(int projectNo, String path, boolean mainProject) throws Exception
+	public Component checkout(int projectNo, String path, boolean mainProject, String remark) throws SVNException, IOException, SQLException, ClassNotFoundException// throws Exception
 	{
 		if ( cm == null )
-			return;
+			return null;
 
+		Component component = null;
 		File destDir = new File(context.getConfigration().getSourcePath() + path);
 		SVNUpdateClient uc = cm.getUpdateClient();
 		uc.setIgnoreExternals(false);
 		SVNDirEntry entry = repository.info(".", -1);
-		String remark = null;
-		long lastVersion = entry.getRevision();
+		long checkoutVersion = entry.getRevision();
 		long dbVersion = context.getProjectDAO().getProjectByNo(projectNo).getLastVersion();
-        log.info("no = " +projectNo+ ", path = " + destDir.getAbsolutePath() + ",  dbVersion = " + dbVersion + ", lastVersion = " + lastVersion);
-		if ( lastVersion > dbVersion )
+        log.info("no = " +projectNo+ ", path = " + destDir.getAbsolutePath() + ",  dbVersion = " + dbVersion + ", lastVersion = " + checkoutVersion);
+
+		if ( checkoutVersion > dbVersion )
 		{
-			Calendar c = Calendar.getInstance();
-			remark = DATETIME_REMARK.format(c.getTime());
 			// do checkout
-			uc.doCheckout(repository.getLocation(), destDir, SVNRevision.create(lastVersion), SVNRevision.create(lastVersion), SVNDepth.INFINITY, true);
+			uc.doCheckout(repository.getLocation(), destDir, SVNRevision.create(checkoutVersion), SVNRevision.create(checkoutVersion), SVNDepth.INFINITY, true);
+			component = new Component(path, checkoutVersion ,true);
 
 			// modified configuration
-			Map<String, String> configChangedPathMap = getModifiedConfiguration(repository.log(new String[]{""}, null, dbVersion, lastVersion, true, true));
+			List<Config> configList = new ArrayList<Config>();
+			Map<String, String> configChangedPathMap = getModifiedConfiguration(repository.log(new String[]{""}, null, dbVersion, checkoutVersion, true, true));
 			log.info("currentVersionWithModifiedConfiguration size=" + configChangedPathMap.size());
 			if ( null != remark && configChangedPathMap.size() > 0 )
 			{
 				for ( String mapKey : configChangedPathMap.keySet() )
 				{
 					context.getProjectConfigurationHstoryDAO().insert(projectNo, remark, mapKey, configChangedPathMap.get(mapKey));
+					configList.add(new Config(mapKey, configChangedPathMap.get(mapKey)));
+					component.addConfigList(new Config(mapKey, configChangedPathMap.get(mapKey)));
 				}
+				component.setConfigList(configList);
 			}
 
 			// do check config changed
 			if ( mainProject )
 			{
-				context.getProjectCheckoutDAO().insert(DATETIME.format(c.getTime()), projectNo, lastVersion, remark);
+				String uuid = UUIDUtils.newUUID();
+				context.getProjectCheckoutDAO().insert(projectNo, uuid, checkoutVersion, remark);
+				component.setToken(uuid);
 			}
 
 			// do update version
-			context.getProjectDAO().updateProjectVersion(lastVersion, projectNo);
+			context.getProjectDAO().updateProjectVersion(checkoutVersion, projectNo);
 
             log.info("checkout " + path + " done!");
 			// do build
-//			RunExecutor re = new RunExecutor();
-//			System.out.print(", return = " + re.runScript("ant -f " + destDir.getPath() + "/build.xml -Dtoday=" + remark));
-//			System.out.print(", build " + path + " done!");
+			if(isAntBuild()){
+				RunExecutor re = new RunExecutor();
+				re.runScript("ant -f " + destDir.getPath() + "/build.xml -Dremark=" + remark+" -DzipPath="+context.getConfigration().getZipPath());
+			}
+
 		}
-		return;
+		return component;
 	}
 
 	@SuppressWarnings("rawtypes")
