@@ -46,7 +46,7 @@ public class SVNAction extends SVNBase
 		long dbVersion = context.getProjectDAO().getProjectByNo(projectNo).getLastVersion();
         log.info("no = " +projectNo+ ", path = " + destDir.getAbsolutePath() + ",  dbVersion = " + dbVersion + ", lastVersion = " + checkoutVersion);
 
-		if ( checkoutVersion > dbVersion )
+		if ( checkoutVersion > dbVersion || !destDir.exists())
 		{
 			// do checkout
 			uc.doCheckout(repository.getLocation(), destDir, SVNRevision.create(checkoutVersion), SVNRevision.create(checkoutVersion), SVNDepth.INFINITY, true);

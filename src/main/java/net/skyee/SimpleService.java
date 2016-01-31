@@ -2,6 +2,7 @@ package net.skyee;
 
 import de.spinscale.dropwizard.jobs.JobsBundle;
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.jdbi.DBIFactory;
@@ -21,6 +22,8 @@ public class SimpleService extends Application<SampleConf> {
 
     @Override
     public void initialize(Bootstrap<SampleConf> bootstrap) {
+        bootstrap.addBundle(new AssetsBundle("/assets/", "/"));
+
         // Enable variable substitution with environment variables
         bootstrap.setConfigurationSourceProvider(
                 new SubstitutingSourceProvider(
@@ -38,5 +41,7 @@ public class SimpleService extends Application<SampleConf> {
         context = Context.getInstance().updateDBInterface(jdbi).setConfigration(sampleConf);
         environment.jersey().register(new BuildResource(context));
         environment.jersey().register(new ResultResource(context));
+
+//        environment.jersey().packages("org.knowm.xdropwizard.resources");
     }
 }
