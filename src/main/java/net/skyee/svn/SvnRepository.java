@@ -59,13 +59,4 @@ public class SvnRepository {
             }
         }
     }
-
-//    public static void main(String[] args) {
-//        SvnRepository d = new SvnRepository();
-//        try {
-//            d.test(login, "servicegatewayapi");
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-//    }
 }

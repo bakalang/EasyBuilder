@@ -57,16 +57,4 @@ public class Project
 		this.lastVersion = lastVersion;
 	}
 
-<<<<<<< HEAD
-	public void setRsToObject(Map<String, Object> map)
-	{
-//		String aa = String.valueOf(map.get("project_no"));
-//		this.setProjectNo(Integer.parseInt(aa));
-		this.setProjectNo(Integer.parseInt(String.valueOf(map.get("project_no"))));
-		this.setModule(String.valueOf(map.get("module")));
-		this.setRepository(String.valueOf(map.get("repository")));
-		this.setLastVersion(Integer.parseInt(String.valueOf(map.get("last_version"))));
-	}
-=======
->>>>>>> ca92eda52e4bd350c0780a5389b251e80541e57d
 }
