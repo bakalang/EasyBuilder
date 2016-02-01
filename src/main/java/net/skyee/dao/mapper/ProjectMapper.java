@@ -7,9 +7,6 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * Created by Sky on 2016/1/22.
- */
 public class ProjectMapper implements ResultSetMapper<Project>
 {
     public Project map(int index, ResultSet r, StatementContext ctx) throws SQLException

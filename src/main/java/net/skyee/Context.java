@@ -1,10 +1,7 @@
 package net.skyee;
 
 
-import net.skyee.dao.ProjectCheckoutDAO;
-import net.skyee.dao.ProjectConfigurationHstoryDAO;
-import net.skyee.dao.ProjectDAO;
-import net.skyee.dao.ProjectDependenceDAO;
+import net.skyee.dao.*;
 import org.skife.jdbi.v2.DBI;
 
 public class Context extends SampleConf {
@@ -14,6 +11,7 @@ public class Context extends SampleConf {
     private ProjectDependenceDAO projectDependenceDAO;
     private ProjectCheckoutDAO projectCheckoutDAO;
     private ProjectConfigurationHstoryDAO projectConfigurationHstoryDAO;
+    private DeployInfoDAO deployInfoDAO;
     private DBI dbInterface;
 
     public static Context getInstance() {
@@ -69,4 +67,10 @@ public class Context extends SampleConf {
         return projectConfigurationHstoryDAO;
     }
 
+    public DeployInfoDAO getDeployInfoDAO() {
+        if (deployInfoDAO == null) {
+            deployInfoDAO = dbInterface.onDemand(DeployInfoDAO.class);
+        }
+        return deployInfoDAO;
+    }
 }

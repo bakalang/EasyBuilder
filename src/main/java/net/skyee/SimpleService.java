@@ -9,6 +9,7 @@ import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import net.skyee.resources.BuildResource;
+import net.skyee.resources.DeployResource;
 import net.skyee.resources.ResultResource;
 import org.skife.jdbi.v2.DBI;
 
@@ -41,7 +42,6 @@ public class SimpleService extends Application<SampleConf> {
         context = Context.getInstance().updateDBInterface(jdbi).setConfigration(sampleConf);
         environment.jersey().register(new BuildResource(context));
         environment.jersey().register(new ResultResource(context));
-
-//        environment.jersey().packages("org.knowm.xdropwizard.resources");
+        environment.jersey().register(new DeployResource(context));
     }
 }

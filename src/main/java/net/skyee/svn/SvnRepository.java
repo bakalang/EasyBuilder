@@ -16,7 +16,6 @@ import java.util.Map;
 
 public class SvnRepository {
     private Logger log = LoggerFactory.getLogger(SvnRepository.class);
-    private final SimpleDateFormat DATETIME_REMARK = new SimpleDateFormat("yyyyMMddhhmmss");
     private Context context;
 
     public SvnRepository(Context context) {
@@ -24,18 +23,14 @@ public class SvnRepository {
     }
 
 
-    public BuildJob test(String moduleName) throws Exception {
+    public BuildJob test(Project p, String remark) throws Exception {
 
         // declare
         Login login = new Login(context.getConfigration().getSvnUser(), context.getConfigration().getSvnPwd());
         Map<Integer, String> dc = new LinkedHashMap<Integer, String>();
-        Project p = context.getProjectDAO().getProjectByModule(moduleName);
+//        Project p = context.getProjectDAO().getProjectByModule(moduleName);
         getDependenceLoop(p.getProjectNo(), dc);
         dc.put(p.getProjectNo(), p.getRepository() + "/" + p.getModule());
-
-        // remark
-        Calendar c = Calendar.getInstance();
-        String remark = DATETIME_REMARK.format(c.getTime());
 
         SVNAction svnaction = new SVNAction();
         svnaction.setAntBuild(true);
